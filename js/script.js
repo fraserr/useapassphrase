@@ -1,27 +1,67 @@
 'use strict';
 
-function generatePassword(numberOfWords, spaces) {
+function generatePassword(numberOfWords, spaces, firstCapitalLetter, randomSymbolSuffix, randomSymbolSuffixCount, randomDigitsSuffix, randomDigitsSuffixCount) {
 
-  if (spaces === undefined) {
-    spaces = true;
-  }
-  // Cryptographically generated random numbers
-  numberOfWords = parseInt(numberOfWords);
-  var array = new Uint32Array(numberOfWords);
-  var crypto = window.crypto || window.msCrypto;
-  crypto.getRandomValues(array);
+    if (spaces === undefined)
+        spaces = true;
 
-  // Empty array to be filled with wordlist
-  var generatedPasswordArray = [];
+    if (firstCapitalLetter === undefined)
+        firstCapitalLetter = true;
+
+    if (randomSymbolSuffix === undefined)
+        randomSymbolSuffix = true;
+
+    if (randomSymbolSuffixCount === undefined)
+        randomSymbolSuffixCount = 2;
+
+    if (randomDigitsSuffix === undefined)
+        randomDigitsSuffix = true;
+
+    if (randomDigitsSuffixCount === undefined)
+        randomDigitsSuffixCount = 2;
+
+    // Cryptographically generated random numbers
+    numberOfWords = parseInt(numberOfWords);
+    var array = new Uint32Array(numberOfWords);
+    var crypto = window.crypto || window.msCrypto;
+    crypto.getRandomValues(array);
+
+    // Empty array to be filled with wordlist
+    var generatedPasswordArray = [];
 
 
-  // Grab a random word, push it to the password array
-  for (var i = 0; i < array.length; i++) {
+    // Grab a random word, push it to the password array
+    for (var i = 0; i < array.length; i++) {
     var index = (array[i] % 5852);
     generatedPasswordArray.push(wordlist[index]);
-  }
+    }
 
-  return generatedPasswordArray.join(spaces === true ? ' ' : '');
+    var password = generatedPasswordArray.join(spaces === true ? ' ' : '');
+
+    if(firstCapitalLetter === true)
+        password = password[0].toUpperCase() + password.slice(1);
+
+    if(randomSymbolSuffix === true)
+        password = password + generateRandomSymbols(randomSymbolSuffixCount);
+
+    if(randomDigitsSuffix === true)
+        password = password + generateRandomDigits(randomSymbolSuffixCount);
+
+    return password;
+}
+
+function generateRandomSymbols(count) {
+    count = count || 2;
+    var s = '', r = '!@£$%^&*()';
+    for (var i=0; i < count; i++) { s += r.charAt(Math.floor(Math.random()*r.length)); }
+    return s;
+}
+
+function generateRandomDigits(count) {
+    count = count || 2;
+    var s = '';
+    for (var i=0; i < count; i++) { s += Math.floor((Math.random() * 10) + 1); }
+    return s;
 }
 
 function setStyleFromWordNumber(passwordField, numberOfWords) {
